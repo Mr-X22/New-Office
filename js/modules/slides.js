@@ -1,4 +1,4 @@
-import { saveFile, supportsFileSystemAccess } from '../core/storage.js';
+import { openFile, saveFile, supportsFileSystemAccess } from '../core/storage.js';
 
 const PPTX_TYPES = [{
   description: 'Presentación PowerPoint',
@@ -7,7 +7,7 @@ const PPTX_TYPES = [{
 
 let slides = [{ title: 'Título de la diapositiva', body: 'Texto de apoyo…' }];
 let activeIndex = 0;
-let root, statusEl;
+let root, statusEl, currentName = 'Presentación sin título.pptx';
 
 export async function mount(container) {
   root = container;
@@ -19,6 +19,7 @@ export async function mount(container) {
         <button id="btn-add" class="btn">+ Diapositiva</button>
         <button id="btn-del" class="btn">Eliminar</button>
         <span class="toolbar__sep"></span>
+        <button id="btn-open" class="btn">Abrir…</button>
         <button id="btn-save" class="btn btn--primary">Exportar .pptx</button>
         <span id="status" class="toolbar__status"></span>
       </div>
@@ -41,6 +42,7 @@ export async function mount(container) {
   });
   root.querySelector('#btn-add').addEventListener('click', addSlide);
   root.querySelector('#btn-del').addEventListener('click', deleteSlide);
+  root.querySelector('#btn-open').addEventListener('click', handleOpen);
   root.querySelector('#btn-save').addEventListener('click', handleSave);
   root.querySelector('#slide-title').addEventListener('input', syncActiveSlide);
   root.querySelector('#slide-body').addEventListener('input', syncActiveSlide);
@@ -96,6 +98,54 @@ function deleteSlide() {
   renderCanvas();
 }
 
+// ---------- Abrir .pptx ----------
+// Un .pptx es un .zip con un XML por diapositiva (ppt/slides/slideN.xml).
+// Leemos el texto de cada una: el primer párrafo con texto se toma como
+// título y el resto como cuerpo. No reconstruye diseño, imágenes ni
+// animaciones — es una lectura de contenido, no una reconstrucción visual.
+async function handleOpen() {
+  const file = await openFile(PPTX_TYPES);
+  if (!file) return;
+  setStatus('Leyendo presentación…');
+  try {
+    const JSZip = await loadJSZip();
+    const zip = await JSZip.loadAsync(await file.blob.arrayBuffer());
+    const slideFiles = Object.keys(zip.files)
+      .filter((name) => /^ppt\/slides\/slide\d+\.xml$/.test(name))
+      .sort((a, b) => slideNumber(a) - slideNumber(b));
+
+    if (!slideFiles.length) throw new Error('No se encontraron diapositivas en el archivo');
+
+    const parser = new DOMParser();
+    const parsed = [];
+    for (const name of slideFiles) {
+      const xml = await zip.files[name].async('text');
+      const doc = parser.parseFromString(xml, 'application/xml');
+      const paragraphs = [...doc.getElementsByTagName('a:p')]
+        .map((p) => [...p.getElementsByTagName('a:t')].map((t) => t.textContent).join(''))
+        .filter((t) => t.trim());
+      parsed.push({
+        title: paragraphs[0] || 'Diapositiva',
+        body: paragraphs.slice(1).join('\n'),
+      });
+    }
+
+    slides = parsed;
+    activeIndex = 0;
+    currentName = file.name;
+    renderList();
+    renderCanvas();
+    setStatus(`Abierto (${slides.length} diapositivas, solo texto — sin imágenes ni diseño)`);
+  } catch (err) {
+    setStatus('No se pudo leer el archivo: ' + err.message);
+  }
+}
+
+function slideNumber(path) {
+  const m = /slide(\d+)\.xml$/.exec(path);
+  return m ? parseInt(m[1], 10) : 0;
+}
+
 async function handleSave() {
   setStatus('Generando .pptx…');
   try {
@@ -107,10 +157,10 @@ async function handleSave() {
       slide.addText(s.body, { x: 0.5, y: 1.6, w: 9, h: 4, fontSize: 18 });
     }
     const blob = await pres.write({ outputType: 'blob' });
-    const target = await saveFile({
+    await saveFile({
       blob,
       handle: null,
-      suggestedName: 'Presentación sin título.pptx',
+      suggestedName: currentName,
       types: PPTX_TYPES,
     });
     setStatus(supportsFileSystemAccess ? 'Guardado' : 'Descargado');
@@ -124,17 +174,22 @@ function setStatus(msg) {
 }
 
 const scriptCache = new Map();
-function loadPptxGen() {
-  const src = 'https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js';
-  if (window.PptxGenJS) return Promise.resolve(window.PptxGenJS);
+function loadScript(src, getGlobal) {
+  if (getGlobal()) return Promise.resolve(getGlobal());
   if (scriptCache.has(src)) return scriptCache.get(src);
   const p = new Promise((resolve, reject) => {
     const s = document.createElement('script');
     s.src = src;
-    s.onload = () => resolve(window.PptxGenJS);
-    s.onerror = () => reject(new Error('No se pudo cargar la librería de presentaciones'));
+    s.onload = () => resolve(getGlobal());
+    s.onerror = () => reject(new Error('No se pudo cargar ' + src));
     document.head.appendChild(s);
   });
   scriptCache.set(src, p);
   return p;
+}
+function loadPptxGen() {
+  return loadScript('https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js', () => window.PptxGenJS);
+}
+function loadJSZip() {
+  return loadScript('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js', () => window.JSZip);
 }

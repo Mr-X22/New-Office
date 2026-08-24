@@ -42,20 +42,16 @@ Para publicarla igual que tus otros proyectos, súbela a GitHub Pages tal cual
 
 | Módulo | Abrir | Guardar/Exportar | Notas |
 |---|---|---|---|
-| Documentos | `.docx` → editor | editor → `.docx` | Formato simplificado: texto, negritas/cursivas/subrayado, títulos, listas. No conserva imágenes ni tablas todavía. |
-| Hojas de cálculo | `.xlsx` → grid | grid → `.xlsx` | Una sola hoja, sin fórmulas todavía (solo valores). |
-| Presentaciones | — | editor → `.pptx` | Aún no lee `.pptx` existentes (es la pieza más difícil de las tres); por ahora solo crea presentaciones nuevas. |
+| Documentos | `.docx` → editor | editor → `.docx` | Texto con **negrita/cursiva/subrayado conservados de verdad** (incluso mezclados en un mismo párrafo), títulos, listas, **imágenes** incrustadas y **tablas**. Autoguardado local cada ~800ms (red de seguridad, no sustituye a "Guardar"). |
+| Hojas de cálculo | `.xlsx` → grid | grid → `.xlsx` | Una sola hoja. **Fórmulas reales**: `=SUMA(A1:A5)`, `=PROMEDIO(B1:B5)`, referencias sueltas (`=A1+B2*3`), rangos. Al guardar, exporta tanto el valor calculado como la fórmula (Excel la reconoce y la recalcula al abrir). |
+| Presentaciones | `.pptx` → diapositivas (solo texto) | editor → `.pptx` | Ahora sí lee `.pptx` existentes extrayendo el texto de cada diapositiva (título + cuerpo); no reconstruye diseño, imágenes ni animaciones — es lectura de contenido, no una reconstrucción visual completa. |
 
 ## Siguientes pasos sugeridos (por prioridad)
 
-1. **Guardado en formato propio** (JSON ligero) para autoguardado rápido sin
-   pasar por docx/xlsx/pptx en cada tecla — exportar a Office solo al final.
-2. **Import de `.pptx`** — es el hueco más grande; probablemente valga la pena
-   una librería distinta a pptxgenjs solo para lectura (o parsear el XML del
-   pptx a mano, ya que es un zip con XML adentro).
-3. **Fórmulas básicas en la hoja de cálculo** (SUMA, PROMEDIO, referencias
-   tipo `A1`).
-4. **Imágenes en Documentos y Presentaciones.**
+1. **Presentaciones: reconstrucción visual real del `.pptx`** (posiciones, imágenes, estilos) — hoy solo se recupera el texto plano de cada diapositiva.
+2. **Hoja de cálculo: más funciones** (SI/IF, CONTAR, BUSCARV) y varias hojas por libro.
+3. **Documentos: estilos de párrafo adicionales** (alineación, tamaño y color de fuente) al exportar — hoy el tamaño/color visual del editor no viaja al `.docx`.
+4. **Sincronizar autoguardado también en Hojas de cálculo y Presentaciones** (hoy solo Documentos lo tiene).
 5. Icono real de la app (los `icons/icon-*.png` actuales son placeholder).
 
 Dime con cuál de los tres módulos seguimos afinando primero y le metemos

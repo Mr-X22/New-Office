@@ -206,6 +206,53 @@ select.btn { appearance: none; }
   outline: none;
 }
 
+.page img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 12px 0;
+  border-radius: 2px;
+}
+
+.page table.doc-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 12px 0;
+}
+.page table.doc-table td {
+  border: 1px solid var(--line);
+  padding: 6px 10px;
+  min-width: 60px;
+  vertical-align: top;
+}
+
+.dialog {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0;
+  box-shadow: 0 12px 32px rgba(31,58,95,0.2);
+}
+.dialog::backdrop { background: rgba(22,40,63,0.35); }
+.dialog__form { padding: 20px 22px; display: flex; flex-direction: column; gap: 12px; min-width: 220px; }
+.dialog__form h3 { margin: 0 0 4px; font-size: 15px; color: var(--ink); }
+.dialog__form label { display: flex; justify-content: space-between; align-items: center; font-size: 13px; gap: 12px; }
+.dialog__form input[type="number"] {
+  width: 70px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 13px;
+}
+.dialog__actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+.dialog .btn { background: var(--paper); color: var(--text); border-color: var(--line); }
+.dialog .btn--primary { background: var(--word); color: #fff; }
+
+.toolbar__hint {
+  font-size: 11.5px;
+  color: rgba(255,255,255,0.55);
+  font-style: italic;
+}
+
 /* ---------- Módulo: Hojas de cálculo ---------- */
 
 .grid-wrap { flex: 1; overflow: auto; padding: 12px; }
