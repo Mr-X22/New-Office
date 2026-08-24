@@ -1,0 +1,304 @@
+:root {
+  --ink: #1F3A5F;
+  --ink-dark: #16283F;
+  --paper: #F2EEE4;
+  --paper-white: #FFFDF8;
+  --line: #D8D0BE;
+  --text: #2A261E;
+  --text-soft: #6B6455;
+  --word: #2B4C7E;
+  --sheet: #2F6E4E;
+  --slides: #B0552E;
+  --module-accent: var(--word);
+  --font-ui: -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-doc: Georgia, "Source Serif Pro", serif;
+  --radius: 8px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-ui);
+  background: var(--paper);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.visually-hidden-trigger { display: none; }
+
+/* ---------- Launcher ---------- */
+
+.launcher {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 24px;
+}
+
+.launcher__header { width: 100%; max-width: 780px; margin-bottom: 40px; }
+
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand__mark { flex-shrink: 0; }
+.brand h1 {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.brand__tagline {
+  margin: 2px 0 0;
+  color: var(--text-soft);
+  font-size: 14px;
+}
+
+.tabs {
+  width: 100%;
+  max-width: 780px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px 14px;
+}
+
+/* Firma visual: cada app es una "pestaña de carpeta" — coherente con el
+   nombre "Carpeta" — en vez de tarjetas genéricas con sombra. */
+.tab {
+  position: relative;
+  background: var(--paper-white);
+  border: 1px solid var(--line);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  padding: 34px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.tab::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 14px;
+  border-radius: 6px 6px 0 0;
+  background: var(--tab-color, var(--ink));
+}
+
+.tab--word { --tab-color: var(--word); }
+.tab--sheet { --tab-color: var(--sheet); }
+.tab--slides { --tab-color: var(--slides); }
+
+.tab:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(31, 58, 95, 0.12); }
+.tab:focus-visible { outline: 2px solid var(--tab-color); outline-offset: 2px; }
+
+.tab__icon {
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 8px;
+  background: var(--tab-color, var(--ink));
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.tab__label { font-weight: 600; font-size: 15px; }
+.tab__hint { font-size: 12.5px; color: var(--text-soft); }
+
+.launcher__footer {
+  margin-top: auto;
+  padding-top: 40px;
+  color: var(--text-soft);
+  font-size: 13px;
+  text-align: center;
+  max-width: 480px;
+}
+
+/* ---------- App shell (dentro de un módulo) ---------- */
+
+.app-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+}
+
+.loading {
+  margin: auto;
+  color: var(--text-soft);
+  font-size: 14px;
+}
+.loading--error { color: #A63A3A; max-width: 420px; text-align: center; }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: #fff;
+  flex-wrap: wrap;
+}
+
+.toolbar__sep {
+  width: 1px; height: 22px;
+  background: rgba(255,255,255,0.2);
+  margin: 0 4px;
+}
+
+.toolbar__status {
+  margin-left: auto;
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.75);
+  padding-right: 6px;
+}
+
+.btn {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.btn:hover { background: rgba(255,255,255,0.16); }
+.btn--ghost { background: transparent; border-color: transparent; font-size: 16px; padding: 6px 10px; }
+.btn--primary { background: var(--module-accent); border-color: transparent; font-weight: 600; }
+
+select.btn { appearance: none; }
+
+/* ---------- Módulo: Documentos ---------- */
+
+.page-wrap {
+  flex: 1;
+  overflow: auto;
+  padding: 32px 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.page {
+  width: 100%;
+  max-width: 720px;
+  min-height: 960px;
+  background: var(--paper-white);
+  box-shadow: 0 2px 12px rgba(31,58,95,0.1);
+  padding: 64px 72px;
+  font-family: var(--font-doc);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
+  outline: none;
+}
+
+/* ---------- Módulo: Hojas de cálculo ---------- */
+
+.grid-wrap { flex: 1; overflow: auto; padding: 12px; }
+
+.grid { border-collapse: collapse; background: var(--paper-white); }
+.grid th, .grid td {
+  border: 1px solid var(--line);
+  min-width: 88px;
+  height: 28px;
+  padding: 2px 6px;
+  font-size: 13px;
+}
+.grid thead th {
+  background: #EDE7D6;
+  position: sticky;
+  top: 0;
+  color: var(--text-soft);
+  font-weight: 600;
+}
+.grid tbody th {
+  background: #EDE7D6;
+  position: sticky;
+  left: 0;
+  color: var(--text-soft);
+  font-weight: 600;
+  min-width: 36px;
+}
+.grid td:focus { outline: 2px solid var(--sheet); outline-offset: -2px; }
+
+/* ---------- Módulo: Presentaciones ---------- */
+
+.slides-layout { flex: 1; display: flex; overflow: hidden; }
+
+.slide-list {
+  width: 190px;
+  background: var(--paper-white);
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.slide-thumb {
+  text-align: left;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 12.5px;
+  color: var(--text);
+}
+.slide-thumb--active { border-color: var(--slides); background: #FBEFE7; }
+
+.slide-canvas-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow: auto;
+}
+
+.slide-canvas {
+  width: 100%;
+  max-width: 720px;
+  aspect-ratio: 16 / 9;
+  background: var(--paper-white);
+  box-shadow: 0 2px 12px rgba(176,85,46,0.15);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.slide-canvas__title {
+  font-family: var(--font-doc);
+  font-size: 26px;
+  font-weight: 700;
+  outline: none;
+}
+.slide-canvas__body {
+  font-family: var(--font-doc);
+  font-size: 16px;
+  line-height: 1.5;
+  outline: none;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 640px) {
+  .tabs { grid-template-columns: 1fr; }
+  .page { padding: 32px 20px; }
+  .slide-list { width: 120px; }
+}
